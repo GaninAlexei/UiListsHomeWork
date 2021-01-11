@@ -1,11 +1,13 @@
 package com.homework.uilistshomework
 
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.tabs.TabLayout
 import com.homework.uilistshomework.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity(), MoviesAdapter.IMovieClick {
+
+    private lateinit var adapter: MoviesAdapter
 
     @ExperimentalStdlibApi
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -14,38 +16,31 @@ class MainActivity : AppCompatActivity(), MoviesAdapter.IMovieClick {
         val binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val adapter = MoviesAdapter()
+        adapter = MoviesAdapter(this)
         binding.recyclerView1.adapter = adapter
-        adapter.list = MockUtil.getHeaderMoviesList(this)
+        adapter.submitList(MockUtil.getHeaderMoviesList(this))
 
         binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
 
-            override fun onTabSelected(tab: TabLayout.Tab?) {
-                if (tab == null) return
-
+            override fun onTabSelected(tab: TabLayout.Tab) {
                 if (tab.position == 0) {
-
-                    binding.recyclerView1.adapter = adapter
-                    adapter.list = MockUtil.getHeaderMoviesList(this@MainActivity)
-
+                    adapter.submitList(MockUtil.getHeaderMoviesList(this@MainActivity))
                 } else {
-
-                    binding.recyclerView1.adapter = adapter
-                    adapter.list = MockUtil.getHeaderWatchedMoviesList(this@MainActivity)
-
+                    adapter.submitList(MockUtil.getHeaderWatchedMoviesList(this@MainActivity))
                 }
             }
 
-            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+            override fun onTabUnselected(tab: TabLayout.Tab) {}
 
-            override fun onTabReselected(tab: TabLayout.Tab?) {}
+            override fun onTabReselected(tab: TabLayout.Tab) {}
 
         })
 
     }
 
-    override fun onDelete(position: Int) {
-        TODO("Not yet implemented")
+    override fun onDelete(item: Item) {
+        val list = adapter.currentList.toMutableList().also { it.remove(item) }
+        adapter.submitList(list)
     }
 
 }
